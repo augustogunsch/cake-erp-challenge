@@ -7,7 +7,7 @@ def route_get_trainers():
     args = request.args
 
     try:
-        limit = int(args.get("limit", 0))
+        limit = int(args.get("limit", -1))
         offset = int(args.get("offset", 0))
     except ValueError:
         return {
@@ -16,14 +16,12 @@ def route_get_trainers():
                 "message": "Couldn't parse parameter as integer"
         }, 500
 
-    if limit < 0 or offset < 0:
+    if limit < -1 or offset < 0:
         return {
                 "code": 2,
                 "type": "Integer parsing error",
                 "message": "Expected positive integer as parameter"
         }, 500
-
-    limit_str = "LIMIT %d" % limit if "limit" in args else "" # gambiarra pra tornar o limite infinito por padrão
 
     nickname = args.get("nickname", "")
     nickname_contains = args.get("nickname_contains", "")
@@ -36,6 +34,6 @@ def route_get_trainers():
         }, 500
 
     if nickname:
-        return jsonify(db.get_trainer_by_nickname(nickname, limit_str, offset))
+        return jsonify(db.get_trainer_by_nickname(nickname, limit, offset))
     else:
-        return jsonify(db.get_trainers_by_nickname_contains(nickname_contains, limit_str, offset))
+        return jsonify(db.get_trainers_by_nickname_contains(nickname_contains, limit, offset))

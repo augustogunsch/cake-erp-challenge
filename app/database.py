@@ -34,10 +34,10 @@ class Database:
         return trainers
 
     def get_trainer_by_nickname(self, nickname, limit, offset):
-        return self.__get_trainers(("SELECT * FROM Trainers WHERE nickname = ? ? OFFSET ?", (nickname, limit, offset)))
+        return self.__get_trainers(("SELECT * FROM Trainers WHERE nickname = ? LIMIT ? OFFSET ?", (nickname, limit, offset)))
 
     def get_trainers_by_nickname_contains(self, contains, limit, offset):
-        return self.__get_trainers(("SELECT * FROM Trainers WHERE nickname LIKE ? ? OFFSET", ("%" + contains + "%", limit, offset)))
+        return self.__get_trainers(("SELECT * FROM Trainers WHERE nickname LIKE ? LIMIT ? OFFSET ?", ("%" + contains + "%", limit, offset)))
 
     def insert_trainer(self, trainer):
         con = sqlite3.connect(self.db_file)
