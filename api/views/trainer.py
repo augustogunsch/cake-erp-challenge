@@ -11,6 +11,9 @@ def error(code, type, message, http_code=400):
             "message": message
     }, http_code)
 
+def get_trainer(id):
+    return trainer_schema.dump(Trainer.query.get(id))
+
 def get_trainers():
     args = request.args
 
