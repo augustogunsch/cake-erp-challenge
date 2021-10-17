@@ -1,2 +1,2 @@
 requirements:
-	pipreqs
+	pipreqs --force
