@@ -22,5 +22,5 @@ Os endpoints que já estão funcionando marcados:
 - [X] GET /trainer/{trainerId}
 - [X] GET /trainer/{trainerId}/pokemon
 - [X] POST /trainer/{trainerId}/pokemon
-- [ ] GET /trainer/{trainerId}/pokemon/{pokemonId}
+- [X] GET /trainer/{trainerId}/pokemon/{pokemonId}
 - [ ] DELETE /trainer/{trainerId}/pokemon/{pokemonId}

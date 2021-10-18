@@ -11,26 +11,26 @@ class HTTPError(Exception):
     def __init__(self, message):
         self.message = message
 
-class TrainerNotFound(Exception):
+class NotFound(Exception):
     pass
 
-def get_trainer_fail(id):
+def get_or_not_found(callback):
     try:
-        trainer = Trainer.query.get(id)
-        if trainer is None:
-            raise TrainerNotFound()
-        return trainer
+        resource = callback()
+        if resource is None:
+            raise NotFound()
+        return resource
     except:
-        raise TrainerNotFound()
+        raise NotFound()
+
+def get_trainer_fail(id):
+    return get_or_not_found(lambda : Trainer.query.get(id))
 
 def get_trainer_by_nick_fail(nickname):
-    try:
-        trainer = Trainer.query.filter_by(nickname=nickname).one()
-        if trainer is None:
-            raise TrainerNotFound()
-        return trainer
-    except:
-        raise TrainerNotFound()
+    return get_or_not_found(lambda : Trainer.query.filter_by(nickname=nickname).one())
+
+def get_pokemon_fail(trainer, id):
+    return get_or_not_found(lambda : trainer.pokemons_list.filter_by(id=id).one())
 
 # authenticação do trainer (decorator)
 def token_required(f):
@@ -38,13 +38,12 @@ def token_required(f):
     def decorated(*args, **kwargs):
         try:
             token = request.headers["authorization"]
-            print(token)
-            print(app.config["SECRET_KEY"])
             data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
-            print(data["username"])
             trainer = get_trainer_by_nick_fail(data["username"])
         except (TypeError, KeyError):
             return AuthenticationFailure("JWT token required")
+        except NotFound:
+            return AuthenticationFailure("Trainer not found")
         except:
             return AuthenticationFailure("JWT token is invalid or expired")
 
@@ -53,13 +52,19 @@ def token_required(f):
 
 # seguintes funções puxam informações da pokeapi
 def set_pokemon_data(pokemon):
-    response = requests.get("https://pokeapi.co/api/v2/pokemon/{}".format(pokemon.pokemon_id))
-    if response.status_code != 200:
-        raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
-    pokemon.pokemon_data = json.loads(response.text)
+    try:
+        response = requests.get("https://pokeapi.co/api/v2/pokemon/{}".format(pokemon.pokemon_id))
+        if response.status_code != 200:
+            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
+        pokemon.pokemon_data = json.loads(response.text)
+    except:
+            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
 
 async def async_set_pokemon_data(session, pokemon):
-    response = await session.get("https://pokeapi.co/api/v2/pokemon/{}".format(pokemon.pokemon_id))
-    if response.status != 200:
-        raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
-    pokemon.pokemon_data = json.loads(await response.text())
+    try:
+        response = await session.get("https://pokeapi.co/api/v2/pokemon/{}".format(pokemon.pokemon_id))
+        if response.status != 200:
+            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
+        pokemon.pokemon_data = json.loads(await response.text())
+    except:
+            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))

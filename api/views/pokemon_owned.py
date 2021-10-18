@@ -2,7 +2,7 @@ from api.models.pokemon_owned import pokemon_owned_schema, pokemon_owned_schemas
 from api.app import db
 from .parse_args import parse_limit, parse_offset, ParsingException, parse_json_obj
 from .errors import ParsingError, FetchError, ConflictingResources
-from .helper import TrainerNotFound, HTTPError, get_trainer_fail, set_pokemon_data, async_set_pokemon_data
+from .helper import *
 from aiohttp import ClientSession
 from asyncio import create_task, gather
 from sqlalchemy.exc import IntegrityError
@@ -46,7 +46,7 @@ async def get_pokemons_owned(trainer_id):
 
     try:
         trainer = get_trainer_fail(trainer_id)
-    except TrainerNotFound:
+    except NotFound:
         return "", 404
 
     pokemons = trainer.pokemons_list.limit(limit).offset(offset).all()
@@ -62,3 +62,14 @@ async def get_pokemons_owned(trainer_id):
             return FetchError(e.message)
 
     return pokemon_owned_schemas.dumps(pokemons)
+
+def get_pokemon_owned(trainer_id, pokemon_id):
+    try:
+        trainer = get_trainer_fail(trainer_id)
+        pokemon = get_pokemon_fail(trainer, pokemon_id)
+        set_pokemon_data(pokemon)
+        return pokemon_owned_schema.dump(pokemon)
+    except NotFound:
+        return "", 404
+    except HTTPError as e:
+        return FetchError(e.message)

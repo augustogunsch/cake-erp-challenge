@@ -29,3 +29,7 @@ def route_post_pokemons_owned(trainer, trainerId):
     if trainer.id != trainerId:
         return errors.ForbiddenError("Trainer id mismatch")
     return pokemon_owned.post_pokemon_owned(trainerId)
+
+@app.route("/trainer/<int:trainerId>/pokemon/<int:pokemonId>", methods=["GET"])
+def route_get_pokemon_owned(trainerId, pokemonId):
+    return pokemon_owned.get_pokemon_owned(trainerId, pokemonId)
