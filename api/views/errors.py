@@ -16,3 +16,9 @@ def ConflictingResources(message):
 
 def AuthenticationFailure(message):
     return error(4, "AuthenticationFailure", message, http_code=401)
+
+def ForbiddenError(message):
+    return error(5, "ForbiddenError", message, http_code=403)
+
+def FetchError(message):
+    return error(6, "FetchError", message, http_code=500)

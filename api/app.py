@@ -9,4 +9,5 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 import api.models.trainer
+import api.models.pokemon_owned
 import api.routes.routes

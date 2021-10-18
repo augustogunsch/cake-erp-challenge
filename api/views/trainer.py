@@ -3,7 +3,8 @@ from api.models.trainer import Trainer, trainer_schema, trainer_schemas, Invalid
 from api.app import db
 from api.app import app
 from flask import request, jsonify
-from .errors import ParsingError, ConflictingParameters, ConflictingResources, AuthenticationFailure
+from .errors import *
+from .parse_args import parse_limit, parse_offset, ParsingException, parse_json_obj
 from werkzeug.security import check_password_hash
 import datetime
 import jwt
@@ -12,19 +13,16 @@ def get_trainer(id):
     try:
         return trainer_schema.dump(Trainer.query.get(id))
     except:
-        return jsonify({})
+        return ("", 404)
 
 def get_trainers():
     args = request.args
 
     try:
-        limit = int(args.get("limit", -1))
-        offset = int(args.get("offset", 0))
-    except ValueError:
-        return ParsingError("Couldn't parse parameter as integer")
-
-    if limit < -1 or offset < 0:
-        return ParsingError("Expected positive integer as parameter")
+        limit = parse_limit()
+        offset = parse_offset()
+    except ParsingException as e:
+        return ParsingError(e.message)
 
     nickname = args.get("nickname", "")
     nickname_contains = args.get("nickname_contains", "")
@@ -53,14 +51,8 @@ def get_trainer_by_email(email):
 
 def post_trainer():
     try:
-        json = request.get_json()
-    except:
-        return ParsingError("Failed to parse JSON body")
+        json = parse_json_obj()
 
-    if type(json) is not dict:
-        return ParsingError("Expected JSON object as body")
-
-    try:
         nickname = json["nickname"]
         first_name = json["first_name"]
         last_name = json["last_name"]
@@ -81,25 +73,22 @@ def post_trainer():
         db.session.commit()
 
         return trainer_schema.dump(trainer)
+    except ParsingException as e:
+        return ParsingError(e.message)
     except InvalidTeam:
         return ParsingError("Field team is invalid")
     except KeyError:
         return ParsingError("Missing JSON object fields")
     except IntegrityError:
-        return ConflictingResources("Trainer with the same nickname or email already exists", http_code=500)
+        return ConflictingResources("Trainer with the same nickname or email already exists")
 
 def auth_trainer():
     try:
-        auth = request.get_json()
-    except:
-        return ParsingError("Failed to parse JSON body")
-
-    if type(auth) is not dict:
-        return ParsingError("Expected JSON object as body")
-
-    try:
+        auth = parse_json_obj()
         email = auth["email"]
         password = auth["password"]
+    except ParsingException as e:
+        return ParsingError(e.message)
     except KeyError:
         return AuthenticationFailure("Login required")
 
@@ -113,7 +102,7 @@ def auth_trainer():
                     "username": trainer.nickname,
                     "exp": datetime.datetime.now() + datetime.timedelta(hours=12)
                 },
-                app.config["SECRET_KEY"])
+                app.config["SECRET_KEY"], algorithm="HS256")
         return jsonify(
                 {
                     "id": trainer.id,

@@ -14,7 +14,7 @@ class InvalidTeam(Exception):
 class Trainer(db.Model):
     __tablename__ = "trainers"
 
-    id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nickname = db.Column(db.String(20), unique=True, nullable=False, index=True)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
@@ -22,6 +22,7 @@ class Trainer(db.Model):
     password = db.Column(db.String(200), nullable=False)
     team = db.Column(db.String(10), nullable=False)
     pokemons_owned = db.Column(db.Integer, default=0)
+    pokemons_list = db.relationship("PokemonOwned", lazy="dynamic")
 
     def __init__(self, nickname, first_name, last_name, email, password, team):
         if team not in teams:
