@@ -20,7 +20,7 @@ Os endpoints que já estão funcionando marcados:
 - [X] POST /trainer
 - [X] POST /trainer/authenticate
 - [X] GET /trainer/{trainerId}
-- [] GET /trainer/{trainerId}/pokemon
-- [] POST /trainer/{trainerId}/pokemon
-- [] GET /trainer/{trainerId}/pokemon/{pokemonId}
-- [] DELETE /trainer/{trainerId}/pokemon/{pokemonId}
+- [ ] GET /trainer/{trainerId}/pokemon
+- [ ] POST /trainer/{trainerId}/pokemon
+- [ ] GET /trainer/{trainerId}/pokemon/{pokemonId}
+- [ ] DELETE /trainer/{trainerId}/pokemon/{pokemonId}
