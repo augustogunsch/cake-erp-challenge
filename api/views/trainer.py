@@ -34,12 +34,12 @@ def get_trainers():
             if nickname_contains:
                 return ConflictingParameters("nickname and nickname_contains are mutually exclusive")
 
-            query = Trainer.query.filter_by(nickname=nickname)
+            query = Trainer.query.filter_by(nickname=nickname).limit(limit).offset(offset)
             return trainer_schemas.dumps(query.all())
 
         else:               # se nickname_contains também está vazio, retornará todos trainers
             pattern = '%'+nickname_contains+'%'
-            query = Trainer.query.filter(Trainer.nickname.like(pattern))
+            query = Trainer.query.filter(Trainer.nickname.like(pattern)).limit(limit).offset(offset)
             return trainer_schemas.dumps(query.all())
 
     except NoResultFound:
