@@ -72,7 +72,7 @@ def post_trainer():
         db.session.add(trainer)
         db.session.commit()
 
-        return trainer_schema.dump(trainer)
+        return (trainer_schema.dump(trainer), 201)
     except ParsingException as e:
         return ParsingError(e.message)
     except InvalidTeam:
