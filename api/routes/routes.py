@@ -7,11 +7,11 @@ import asyncio
 def route_get_trainer(trainerId):
     return trainer.get_trainer(trainerId)
 
-@app.route("/trainer", methods=["GET"])
+@app.route("/trainer/", methods=["GET"])
 def route_get_trainers():
     return trainer.get_trainers()
 
-@app.route("/trainer", methods=["POST"])
+@app.route("/trainer/", methods=["POST"])
 def route_create_trainer():
     return trainer.post_trainer()
 
@@ -33,3 +33,10 @@ def route_post_pokemons_owned(trainer, trainerId):
 @app.route("/trainer/<int:trainerId>/pokemon/<int:pokemonId>", methods=["GET"])
 def route_get_pokemon_owned(trainerId, pokemonId):
     return pokemon_owned.get_pokemon_owned(trainerId, pokemonId)
+
+@app.route("/trainer/<int:trainerId>/pokemon/<int:pokemonId>", methods=["DELETE"])
+@helper.token_required
+def route_delete_pokemon_owned(trainer, trainerId, pokemonId):
+    if trainer.id != trainerId:
+        return errors.ForbiddenError("Trainer id mismatch")
+    return pokemon_owned.delete_pokemon_owned(trainer, pokemonId)

@@ -73,3 +73,15 @@ def get_pokemon_owned(trainer_id, pokemon_id):
         return "", 404
     except HTTPError as e:
         return FetchError(e.message)
+
+def delete_pokemon_owned(trainer, pokemon_id):
+    try:
+        pokemon = get_pokemon_fail(trainer, pokemon_id)
+        set_pokemon_data(pokemon)
+        db.session.delete(pokemon)
+        db.session.commit()
+        return pokemon_owned_schema.dump(pokemon)
+    except NotFound:
+        return "", 404
+    except HTTPError as e:
+        return FetchError(e.message)
