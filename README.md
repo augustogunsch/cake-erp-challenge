@@ -1,11 +1,22 @@
 # Rodando
 As dependências (Python) do projeto estão listadas em `requirements.txt`.
 
-Crie o banco de dados:
-```python3 create_db.py```
+Vá para o diretório `api`:
+```
+cd api
+```
 
-Depois, no diretório `api`:
-```flask run```
+Crie o banco de dados:
+```
+flask db init
+flask db migrate
+flask db upgrade
+```
+
+Inicie o servidor de desenvolvimento:
+```
+flask run
+```
 
 Por padrão o servidor tem sua interface em `http://localhost:5000`.
 
