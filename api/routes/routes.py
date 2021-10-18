@@ -14,3 +14,7 @@ def route_get_trainers():
 @app.route('/trainer', methods=['POST'])
 def route_create_trainer():
     return trainer.post_trainer()
+
+@app.route("/trainer/authenticate", methods=['POST'])
+def route_auth_trainer():
+    return trainer.auth_trainer()
