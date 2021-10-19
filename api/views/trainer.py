@@ -11,7 +11,10 @@ import jwt
 
 def get_trainer(id):
     try:
-        return trainer_schema.dump(Trainer.query.get(id))
+        trainer = Trainer.query.get(id)
+        if trainer is None:
+            return ("", 404)
+        return trainer_schema.dump(trainer)
     except:
         return ("", 404)
 

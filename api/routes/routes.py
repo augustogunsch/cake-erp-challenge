@@ -3,15 +3,15 @@ from api.views import trainer, pokemon_owned, helper, errors
 from flask import request
 import asyncio
 
-@app.route("/trainer/<int:trainerId>/", methods=["GET"])
+@app.route("/trainer/<int:trainerId>", methods=["GET"])
 def route_get_trainer(trainerId):
     return trainer.get_trainer(trainerId)
 
-@app.route("/trainer/", methods=["GET"])
+@app.route("/trainer", methods=["GET"])
 def route_get_trainers():
     return trainer.get_trainers()
 
-@app.route("/trainer/", methods=["POST"])
+@app.route("/trainer", methods=["POST"])
 def route_create_trainer():
     return trainer.post_trainer()
 

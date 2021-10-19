@@ -21,4 +21,4 @@ def ForbiddenError(message):
     return error(5, "ForbiddenError", message, http_code=403)
 
 def FetchError(message):
-    return error(6, "FetchError", message, http_code=500)
+    return error(6, "FetchError", message, http_code=404)

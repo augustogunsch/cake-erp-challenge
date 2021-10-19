@@ -1,4 +1,4 @@
 __pycache__/
 venv/
 pyrightconfig.json
-database.db
+*.db

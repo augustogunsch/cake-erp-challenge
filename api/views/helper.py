@@ -12,16 +12,17 @@ class HTTPError(Exception):
         self.message = message
 
 class NotFound(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
 
 def get_or_not_found(callback):
     try:
         resource = callback()
         if resource is None:
-            raise NotFound()
+            raise NotFound("Resource not found")
         return resource
     except:
-        raise NotFound()
+        raise NotFound("Resource not found")
 
 def get_trainer_fail(id):
     return get_or_not_found(lambda : Trainer.query.get(id))
@@ -50,21 +51,25 @@ def token_required(f):
         return f(trainer, *args, **kwargs)
     return decorated
 
+# helpers internos
+def cant_fetch_error(pokemon):
+    raise NotFound("Could not fetch data for pokemon with id {}".format(pokemon.pokemon_id))
+
 # seguintes funções puxam informações da pokeapi
 def set_pokemon_data(pokemon):
     try:
         response = requests.get("https://pokeapi.co/api/v2/pokemon/{}".format(pokemon.pokemon_id))
         if response.status_code != 200:
-            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
+            cant_fetch_error(pokemon)
         pokemon.pokemon_data = json.loads(response.text)
     except:
-            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
+        cant_fetch_error(pokemon)
 
 async def async_set_pokemon_data(session, pokemon):
     try:
         response = await session.get("https://pokeapi.co/api/v2/pokemon/{}".format(pokemon.pokemon_id))
         if response.status != 200:
-            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
+            cant_fetch_error(pokemon)
         pokemon.pokemon_data = json.loads(await response.text())
     except:
-            raise HTTPError("Could not fetch pokemon with id {}".format(pokemon.pokemon_id))
+        cant_fetch_error(pokemon)

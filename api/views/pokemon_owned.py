@@ -4,7 +4,7 @@ from .parse_args import parse_limit, parse_offset, ParsingException, parse_json_
 from .errors import ParsingError, FetchError, ConflictingResources
 from .helper import *
 from aiohttp import ClientSession
-from asyncio import create_task, gather
+import asyncio
 from sqlalchemy.exc import IntegrityError
 
 def post_pokemon_owned(trainer_id):
@@ -30,7 +30,7 @@ def post_pokemon_owned(trainer_id):
 
         db.session.add(pokemon)
         db.session.commit()
-    except HTTPError as e:
+    except NotFound as e:
         return FetchError(e.message)
     except IntegrityError:
         return ConflictingResources("Trainer already has another pokemon with the same name")
@@ -54,12 +54,20 @@ async def get_pokemons_owned(trainer_id):
     async with ClientSession() as session:
         tasks = []
         for pokemon in pokemons:
-            task = create_task(async_set_pokemon_data(session, pokemon))
+            task = asyncio.create_task(async_set_pokemon_data(session, pokemon))
             tasks.append(task)
         try:
-            await gather(*tasks)
-        except HTTPError as e:
+            await asyncio.gather(*tasks)
+        except NotFound as e:
+            for task in tasks:
+                task.cancel()
             return FetchError(e.message)
+
+    # workaround pra bug do aiohttp, que pode gerar avisos de conexões abertas
+    # ver documentação: https://docs.aiohttp.org/en/stable/client_advanced.html#graceful-shutdown
+    # será arrumado na versão 4.0.0, que ainda não saiu
+    # issue no github: https://github.com/aio-libs/aiohttp/issues/1925
+    await asyncio.sleep(0.250)
 
     return pokemon_owned_schemas.dumps(pokemons)
 
@@ -73,6 +81,8 @@ def get_pokemon_owned(trainer_id, pokemon_id):
         return "", 404
     except HTTPError as e:
         return FetchError(e.message)
+    except NotFound as e:
+        return ParsingError(e.message)
 
 def delete_pokemon_owned(trainer, pokemon_id):
     try:
