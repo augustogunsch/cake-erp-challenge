@@ -354,6 +354,18 @@ class MainTestCase(TestCase):
         response = self.client.delete("/trainer/2/pokemon/{}".format(response.get_json()["id"]), headers={"Authorization":token}, follow_redirects=True)
         self.assert_200(response)
 
+    # deletando pokemon de outro trainer
+    def test_delete_pokemon_forbidden(self):
+        login = {
+                "email": "joaooliveira@hotmail.com",
+                "password": "senha",
+        }
+        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
+        self.assert_200(auth)
+        token = auth.get_json()["token"]
+        response = self.client.delete("/trainer/1/pokemon/1", headers={"Authorization":token}, follow_redirects=True)
+        self.assert_403(response)
+
 
 
 if __name__ == "__main__":
