@@ -60,7 +60,17 @@ class MainTestCase(TestCase):
         db.session.add_all(trainers)
         db.session.add_all(pokemons)
         db.session.commit()
+
         self.client = app.test_client()
+
+        login = {
+                "email": "joaooliveira@hotmail.com",
+                "password": "senha",
+        }
+        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
+        self.assert_200(auth)
+        self.token_joao = auth.get_json()["token"]
+
         return app
 
     def test_post_trainer(self):
@@ -230,97 +240,55 @@ class MainTestCase(TestCase):
         self.assert_401(response)
 
     def test_post_pokemon(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
         data = {
                 "name": "Dummy",
                 "level": 2,
                 "pokemon_id": 12
         }
-        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_status(response, 201)
         self.assertIn(b"Dummy", response.data)
         self.assertIn(b"pokemon_data", response.data)
 
     def test_post_pokemon_trainer_not_found(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
         data = {
                 "name": "Dummy",
                 "level": 2,
                 "pokemon_id": 12
         }
-        response = self.client.post("/trainer/200/pokemon", json=data, headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.post("/trainer/200/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_403(response)
 
     # adicionando pokemon pra outro trainer
     def test_post_pokemon_forbidden(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
         data = {
                 "name": "Dummy",
                 "level": 2,
                 "pokemon_id": 12
         }
-        response = self.client.post("/trainer/1/pokemon", json=data, headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.post("/trainer/1/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_403(response)
 
     def test_post_pokemon_no_species(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
         data = {
                 "name": "Dumb",
                 "level": 2,
                 "pokemon_id": 12000
         }
-        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_404(response)
 
     def test_delete_pokemon_trainer_not_found(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
-        response = self.client.delete("/trainer/200/pokemon/1", headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.delete("/trainer/200/pokemon/1", headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_403(response)
 
     def test_delete_pokemon_no_auth(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
         data = {
                 "name": "Dummier",
                 "level": 2,
                 "pokemon_id": 12
         }
-        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_status(response, 201)
         response = self.client.delete("/trainer/2/pokemon/{}".format(response.get_json()["id"]), follow_redirects=True)
         self.assert_401(response)
@@ -337,33 +305,19 @@ class MainTestCase(TestCase):
         self.assert_404(response)
 
     def test_delete_pokemon(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
         data = {
                 "name": "Dummier",
                 "level": 2,
                 "pokemon_id": 12
         }
-        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_status(response, 201)
-        response = self.client.delete("/trainer/2/pokemon/{}".format(response.get_json()["id"]), headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.delete("/trainer/2/pokemon/{}".format(response.get_json()["id"]), headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_200(response)
 
     # deletando pokemon de outro trainer
     def test_delete_pokemon_forbidden(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
-        response = self.client.delete("/trainer/1/pokemon/1", headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.delete("/trainer/1/pokemon/1", headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_403(response)
 
 
