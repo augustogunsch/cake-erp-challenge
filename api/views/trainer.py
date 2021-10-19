@@ -4,7 +4,7 @@ from api.app import db
 from api.app import app
 from flask import request, jsonify
 from .errors import *
-from .parse_args import parse_limit, parse_offset, ParsingException, parse_json_obj
+from api.util.parse_args import parse_limit, parse_offset, ParsingException, parse_json_obj
 from werkzeug.security import check_password_hash
 import datetime
 import jwt

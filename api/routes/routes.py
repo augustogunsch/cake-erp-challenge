@@ -1,5 +1,6 @@
 from api.app import app
-from api.views import trainer, pokemon_owned, authentication, errors
+from api.views import trainer, pokemon_owned, errors
+from api.util import authentication
 import asyncio
 
 @app.route("/trainer/<int:trainerId>", methods=["GET"])

@@ -2,7 +2,7 @@ from functools import wraps
 from flask import request
 from api.app import app
 from .fetch import get_trainer_by_nick_fail, NotFound
-from .errors import AuthenticationFailure
+from api.views.errors import AuthenticationFailure
 import jwt
 
 # autenticação do trainer (decorator)
