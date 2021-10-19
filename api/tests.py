@@ -250,6 +250,16 @@ class MainTestCase(TestCase):
         self.assertIn(b"Dummy", response.data)
         self.assertIn(b"pokemon_data", response.data)
 
+    def test_post_pokemon_duplicate(self):
+        data = {
+                "name": "Poltergeist",
+                "level": 2,
+                "pokemon_id": 12
+        }
+        self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
+        response = self.client.post("/trainer/2/pokemon", json=data, headers={"Authorization":self.token_joao}, follow_redirects=True)
+        self.assert_status(response, 409)
+
     def test_post_pokemon_trainer_not_found(self):
         data = {
                 "name": "Dummy",
