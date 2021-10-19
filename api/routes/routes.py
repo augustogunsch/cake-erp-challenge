@@ -1,6 +1,5 @@
 from api.app import app
-from api.views import trainer, pokemon_owned, helper, errors
-from flask import request
+from api.views import trainer, pokemon_owned, authentication, errors
 import asyncio
 
 @app.route("/trainer/<int:trainerId>", methods=["GET"])
@@ -24,7 +23,7 @@ def route_get_pokemons_owned(trainerId):
     return asyncio.run(pokemon_owned.get_pokemons_owned(trainerId))
 
 @app.route("/trainer/<int:trainerId>/pokemon", methods=["POST"])
-@helper.token_required
+@authentication.token_required
 def route_post_pokemons_owned(trainer, trainerId):
     if trainer.id != trainerId:
         return errors.ForbiddenError("Trainer id mismatch")
@@ -35,7 +34,7 @@ def route_get_pokemon_owned(trainerId, pokemonId):
     return pokemon_owned.get_pokemon_owned(trainerId, pokemonId)
 
 @app.route("/trainer/<int:trainerId>/pokemon/<int:pokemonId>", methods=["DELETE"])
-@helper.token_required
+@authentication.token_required
 def route_delete_pokemon_owned(trainer, trainerId, pokemonId):
     if trainer.id != trainerId:
         return errors.ForbiddenError("Trainer id mismatch")

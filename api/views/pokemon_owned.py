@@ -2,7 +2,7 @@ from api.models.pokemon_owned import pokemon_owned_schema, pokemon_owned_schemas
 from api.app import db
 from .parse_args import parse_limit, parse_offset, ParsingException, parse_json_obj
 from .errors import ParsingError, FetchError, ConflictingResources
-from .helper import *
+from .fetch import *
 from aiohttp import ClientSession
 import asyncio
 from sqlalchemy.exc import IntegrityError
