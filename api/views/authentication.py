@@ -5,7 +5,7 @@ from .fetch import get_trainer_by_nick_fail, NotFound
 from .errors import AuthenticationFailure
 import jwt
 
-# authenticação do trainer (decorator)
+# autenticação do trainer (decorator)
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
