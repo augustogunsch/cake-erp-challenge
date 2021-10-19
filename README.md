@@ -18,13 +18,13 @@ Inicie o servidor de desenvolvimento:
 flask run
 ```
 
+Por padrão o servidor tem sua interface em `http://localhost:5000`.
+
 ## Rodando Testes
 No diretório **raíz**:
 ```
 python3 -m api.tests
 ```
-
-Por padrão o servidor tem sua interface em `http://localhost:5000`.
 
 # Desenvolvimento
 - Comecei a desenvolver o projeto em Rust, mas sofri muito com a linguagem, perdendo uma tarde inteira lutando com o *borrow checker* e o framework Rocket. Concluí que preciso aprender melhor as mecânicas de *ownership* do Rust, e decidi fazer em Python (framework Flask) ao invés.
