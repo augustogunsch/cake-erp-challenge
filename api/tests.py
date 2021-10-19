@@ -304,14 +304,7 @@ class MainTestCase(TestCase):
         self.assert_401(response)
 
     def test_delete_pokemon_not_found(self):
-        login = {
-                "email": "joaooliveira@hotmail.com",
-                "password": "senha",
-        }
-        auth = self.client.post("/trainer/authenticate", json=login, follow_redirects=True)
-        self.assert_200(auth)
-        token = auth.get_json()["token"]
-        response = self.client.delete("/trainer/2/pokemon/1000", headers={"Authorization":token}, follow_redirects=True)
+        response = self.client.delete("/trainer/2/pokemon/1000", headers={"Authorization":self.token_joao}, follow_redirects=True)
         self.assert_404(response)
 
     def test_delete_pokemon(self):
