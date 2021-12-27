@@ -1,1 +1,2 @@
-web: flask run
+release: cd api && flask db upgrade
+web: cd api && flask run
